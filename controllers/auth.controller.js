@@ -1,14 +1,13 @@
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
 const config = require('../config/db.config');
-const { User } = require('../models')(config.DB);
+const { Users } = require('../models')(config.DB);
 
 module.exports = {
-
   login: async (req, res) => {
     try {
       const { phone, password } = req.body;
-      const user = await User.findOne({ where: { phone } });
+      const user = await Users.findOne({ where: { phone } });
       if (!user) return res.status(422).json({ message: 'The provided credentials are incorrect' });
 
       if (!bcrypt.compareSync(password, user.password)) return res.status(422).json({ message: 'The provided credentials are incorrect' });
@@ -24,11 +23,11 @@ module.exports = {
     try {
       const { phone, password, publickey, privatekey } = req.body;
 
-      const user = await User.findOne({ where: { phone: phone } });
+      const user = await Users.findOne({ where: { phone: phone } });
       if (user) {
         return res.status(422).json({ message: 'User already exists' });
       } else {
-        await User.create({
+        await Users.create({
           phone,
           password,
           publickey,
@@ -43,5 +42,4 @@ module.exports = {
       return res.status(500).json({ message: 'Something went wrong' });
     }
   },
-
 };
