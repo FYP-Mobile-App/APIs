@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       privatekey: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(1024),
         allowNull: false,
       },
     },
@@ -56,6 +56,5 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
   );
-
   return Users;
 };
