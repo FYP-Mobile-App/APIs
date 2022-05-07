@@ -5,6 +5,10 @@ const validate = require('../middlewares/validation.middleware');
 
 router.post('/login', validate(authSchema.login), authController.login);
 
+router.post('/phoneInUsersTable', authController.phoneInUsersTable);
+
+router.post('/phoneInOTPTable', authController.phoneInOTPTable);
+
 router.post('/signup', validate(authSchema.signup), authController.signup);
 
 module.exports = router;
