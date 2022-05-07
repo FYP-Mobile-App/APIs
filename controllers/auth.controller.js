@@ -1,9 +1,34 @@
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
 const config = require('../config/db.config');
-const { Users } = require('../models')(config.DB);
+const { Users, OTP } = require('../models')(config.DB);
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const client = require('twilio')(accountSid, authToken);
+
+async function sendsms(phone, otp) {
+  const result = await client.messages
+    .create({ body: otp, from: '+19706987547', to: phone })
+  return result
+
+
+}
 
 module.exports = {
+
+  phoneOtp: async (req, res) => {
+    try {
+      const { phone, otp } = req.body;
+      console.log(req.body)
+      const user = await OTP.findOne({ where: { phone } });
+      if (user.OTP == otp) return res.status(200).json();
+      return res.status(401).json({ message: 'wrong otp' })
+    }
+    catch (err) {
+      console.log(err);
+      return res.status(500).json({ message: 'Something went wrong' });
+    }
+  },
   login: async (req, res) => {
     try {
       const { phone, password } = req.body;
@@ -19,34 +44,55 @@ module.exports = {
     }
   },
 
-  phoneInUsersTable: async (req, res) => {
+  phone: async (req, res) => {
     try {
       const { phone } = req.body;
       const user = await Users.findOne({ where: { phone } });
-      if (user) return res.status(200).json({ message: 'This phone number is already registered' });
-      return res.status(202).json({ phone: phone });
+      if (user && false) return res.status(403).json({ message: 'This phone number is already registered' });
+
+      else {
+        const user = await OTP.findOne({ where: { phone } });
+        if (user) {
+          const result = await sendsms(phone, user.OTP)
+          
+        }
+
+        // return res.status(200).json({ OTP: user.OTP });
+        else {
+          const randomNumber = Math.floor(1000 + Math.random() * 9000);
+          await OTP.create({
+            phone: phone,
+            OTP: randomNumber,
+          });
+          const result = await sendsms(phone, randomNumber)
+          
+
+        }
+        return res.status(202).json();
+      }
     } catch (err) {
       console.log(err);
       return res.status(500).json({ message: 'Something went wrong' });
     }
   },
 
-  phoneInOTPTable: async (req, res) => {
-    try {
-      const { phone } = req.body;
-      const user = await OTP.findOne({ where: { phone } });
-      if (user) return res.status(200).json({ OTP: user.OTP });
-      const randomNumber = Math.floor(1000 + Math.random() * 9000);
-      await OTP.create({
-        phone,
-        randomNumber,
-      });
-      return res.status(201).json({ OTP: OTP });
-    } catch (err) {
-      console.log(err);
-      return res.status(500).json({ message: 'Something went wrong' });
-    }
-  },
+
+  // phoneInOTPTable: async (req, res) => {
+  //   try {
+  //     const { phone } = req.body;
+  //     const user = await OTP.findOne({ where: { phone } });
+  //     if (user) return res.status(200).json({ OTP: user.OTP });
+  //     const randomNumber = Math.floor(1000 + Math.random() * 9000);
+  //     await OTP.create({
+  //       phone,
+  //       randomNumber,
+  //     });
+  //     return res.status(201).json({ OTP: OTP });
+  //   } catch (err) {
+  //     console.log(err);
+  //     return res.status(500).json({ message: 'Something went wrong' });
+  //   }
+  // },
 
   signup: async (req, res) => {
     try {
