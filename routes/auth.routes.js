@@ -7,11 +7,8 @@ router.post('/login', validate(authSchema.login), authController.login);
 
 router.post('/phone', authController.phone);
 
-router.post('/phoneotp', authController.phoneOtp);
-
-// router.post('/phoneInOTPTable', authController.phoneInOTPTable);
+router.post('/phoneAndOTP', authController.phoneAndOTP);
 
 router.post('/signup', validate(authSchema.signup), authController.signup);
 
 module.exports = router;
- 
