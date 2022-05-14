@@ -9,6 +9,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    validated: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
   });
   return OTP;
 };
