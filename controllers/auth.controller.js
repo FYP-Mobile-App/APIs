@@ -31,11 +31,15 @@ module.exports = {
       if (user) return res.status(403).json({ message: 'This phone number is already registered' });
       else {
         const randomNumber = Math.floor(1000 + Math.random() * 9000);
-        await OTP.create({
-          phone: phone,
-          OTP: randomNumber,
-          validated: false,
-        });
+        const record = await OTP.findOne({ where: { phone } });
+        if (record) record.update({ OTP: randomNumber });
+        else {
+          await OTP.create({
+            phone: phone,
+            OTP: randomNumber,
+            validated: false,
+          });
+        }
         await sendSMS(phone, randomNumber);
         return res.status(202).json();
       }
@@ -94,11 +98,15 @@ module.exports = {
       if (!user) return res.status(403).json({ message: 'This phone number is not registered' });
       else {
         const randomNumber = Math.floor(1000 + Math.random() * 9000);
-        await OTP.create({
-          phone: phone,
-          OTP: randomNumber,
-          validated: false,
-        });
+        const record = await OTP.findOne({ where: { phone } });
+        if (record) record.update({ OTP: randomNumber });
+        else {
+          await OTP.create({
+            phone: phone,
+            OTP: randomNumber,
+            validated: false,
+          });
+        }
         await sendSMS(phone, randomNumber);
         return res.status(202).json();
       }
