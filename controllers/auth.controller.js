@@ -131,8 +131,8 @@ module.exports = {
       const user = await Users.findOne({ where: { phone } });
       if (!user) return res.status(403).json({ message: 'This phone number is not registered' });
       else {
-        const user = await OTP.findOne({ where: { phone } });
-        if (user.validated == false) return res.status(403).json();
+        const record = await OTP.findOne({ where: { phone } });
+        if (record.validated == false) return res.status(403).json();
         user.update({ password: password });
         OTP.destroy({ where: { phone: phone } });
         return res.status(200).json({
